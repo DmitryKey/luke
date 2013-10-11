@@ -873,12 +873,7 @@ public class Luke extends Thinlet implements ClipboardOwner {
         policy = new KeepLastIndexDeletionPolicy();
       }
       cfg.setIndexDeletionPolicy(policy);
-      MergePolicy mp = cfg.getMergePolicy();
-      if (mp instanceof LogMergePolicy) {
-        ((LogMergePolicy)mp).setUseCompoundFile(IndexGate.preferCompoundFormat(dir));
-      } else if (mp instanceof TieredMergePolicy) {
-        ((TieredMergePolicy)cfg.getMergePolicy()).setUseCompoundFile(IndexGate.preferCompoundFormat(dir));
-      }
+      cfg.setUseCompoundFile(IndexGate.preferCompoundFormat(dir));
       IndexWriter iw = new IndexWriter(dir, cfg);
       return iw;
     } catch (Exception e) {
@@ -1213,7 +1208,7 @@ public class Luke extends Thinlet implements ClipboardOwner {
       }
       showFiles(dir, null);
       if (ir instanceof CompositeReader) {
-        ar = new SlowCompositeReaderWrapper((CompositeReader)ir);
+        ar = SlowCompositeReaderWrapper.wrap(ir);
       } else if (ir instanceof AtomicReader) {
         ar = (AtomicReader)ir;
       }
@@ -2114,22 +2109,10 @@ public class Luke extends Thinlet implements ClipboardOwner {
           errorMsg("You need to run 'Check Index' first.");
           return;
         }
-        // use codec from the first valid segment
-        Codec c = null;
-        for (SegmentInfoStatus ssi : status.segmentInfos) {
-          if (ssi.codec != null) {
-            c = ssi.codec;
-            break;
-          }
-        }
-        if (c == null) {
-          showStatus("Can't determine Codec, using default");
-          c = Codec.getDefault();
-        }
         Object fixRes = find(dialog, "fixRes");
         PanelPrintWriter ppw = (PanelPrintWriter)getProperty(dialog, "ppw");
         try {
-          ci.fixIndex(status, c);
+          ci.fixIndex(status);
           setString(fixRes, "text", "DONE. Review the output above.");
         } catch (Exception e) {
           ppw.println("\nERROR during Fix Index:");
@@ -2491,18 +2474,7 @@ public class Luke extends Thinlet implements ClipboardOwner {
           }
           cfg.setIndexDeletionPolicy(policy);
           cfg.setTermIndexInterval(tii);
-          MergePolicy p = cfg.getMergePolicy();
-          if (p instanceof LogMergePolicy) {
-            ((LogMergePolicy)p).setUseCompoundFile(useCompound);
-            if (useCompound) {
-              ((LogMergePolicy)p).setNoCFSRatio(1.0);
-            }
-          } else if (p instanceof TieredMergePolicy) {
-            ((TieredMergePolicy)p).setUseCompoundFile(useCompound);            
-            if (useCompound) {
-              ((TieredMergePolicy)p).setNoCFSRatio(1.0);
-            }
-          }
+          cfg.setUseCompoundFile(useCompound);
           cfg.setInfoStream(ppw);
           iw = new IndexWriter(dir, cfg);
           long startSize = Util.calcTotalFileSize(pName, dir);
@@ -3262,10 +3234,10 @@ public class Luke extends Thinlet implements ClipboardOwner {
     setString(sim, "text", s.getClass().getName());
     try {
       float newFVal = Float.parseFloat(getString(newNorm, "text"));
-      byte newBVal = Util.encodeNormValue(newFVal, f.name(), s);
+      long newBVal = Util.encodeNormValue(newFVal, f.name(), s);
       float encFVal = Util.decodeNormValue(newBVal, f.name(), s);
       setString(encNorm, "text", String.valueOf(encFVal) +
-          " (0x" + Util.byteToHex(newBVal) + ")");
+          " (0x" + Util.byteToHex((byte)(newBVal & 0xFF)) + ")");
       putProperty(dialog, "newNorm", new Float(newFVal));
       doLayout(dialog);
     } catch (Exception e) {

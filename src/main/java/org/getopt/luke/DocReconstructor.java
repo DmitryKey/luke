@@ -47,7 +47,7 @@ public class DocReconstructor extends Observable {
       throw new Exception("IndexReader cannot be null.");
     }
     if (reader instanceof CompositeReader) {
-      this.reader = new SlowCompositeReaderWrapper((CompositeReader)reader);
+      this.reader = SlowCompositeReaderWrapper.wrap(reader);
     } else if (reader instanceof AtomicReader) {
       this.reader = (AtomicReader)reader;
     } else {

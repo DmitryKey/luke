@@ -6,11 +6,11 @@
 
     <groupId>luke</groupId>
     <artifactId>luke</artifactId>
-    <version>4.3.0</version>
+    <version>4.5.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <lucene.version>4.3.0</lucene.version>
+        <lucene.version>4.5.0</lucene.version>
         <ehcache.version>2.6.2</ehcache.version>
         <hadoop.version>0.20.2</hadoop.version>
         <log4j.version>1.2.17</log4j.version>

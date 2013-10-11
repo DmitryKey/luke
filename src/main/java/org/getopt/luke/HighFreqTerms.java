@@ -200,7 +200,7 @@ public class HighFreqTerms {
       final Terms terms = MultiFields.getTerms(r, field);
       if (terms != null) {
         final TermsEnum termsEnum = terms.iterator(null);
-        if (termsEnum.seekExact(text, true)) {
+        if (termsEnum.seekExact(text)) {
           return termsEnum.totalTermFreq();
         }
       }

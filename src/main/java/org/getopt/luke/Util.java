@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -160,7 +161,7 @@ public class Util {
   public static Collection<String> fieldNames(IndexReader r, boolean indexedOnly) throws IOException {
     AtomicReader reader;
     if (r instanceof CompositeReader) {
-      reader = new SlowCompositeReaderWrapper((CompositeReader)r);
+      reader = SlowCompositeReaderWrapper.wrap(r);
     } else {
       reader = (AtomicReader)r;
     }
@@ -176,7 +177,7 @@ public class Util {
     return res;
   }
   
-  public static float decodeNormValue(byte v, String fieldName, TFIDFSimilarity sim) throws Exception {
+  public static float decodeNormValue(long v, String fieldName, TFIDFSimilarity sim) throws Exception {
     try {
       return sim.decodeNormValue(v);
     } catch (Exception e) {
@@ -184,7 +185,7 @@ public class Util {
     }
   }
   
-  public static byte encodeNormValue(float v, String fieldName, TFIDFSimilarity sim) throws Exception {
+  public static long encodeNormValue(float v, String fieldName, TFIDFSimilarity sim) throws Exception {
     try {
       return sim.encodeNormValue(v);
     } catch (Exception e) {

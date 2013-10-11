@@ -1,3 +1,13 @@
+* Update to 4.5.0
+
+
+- Cache parameter was useless (LUCENE-5114)
+- LogMergePolicy don't has a method anymore to set useCoumpoundFile. Use IndexWriterConfig.setUseCompoundFile (LUCENE-5038)
+- Codec parameter was useless (LUCENE-5141)
+- TFIDFSimilarity encode/decode now uses long instead of byte (LUCENE-5078) 
+
+
+
 * Update to 4.3.0
 
 
