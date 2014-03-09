@@ -180,7 +180,7 @@ public class FsDirectory extends Directory {
 
     @Override
     public void clearLock(String s) throws IOException {
-        lock.release();
+        lock.close();
         lock = null;
     }
 

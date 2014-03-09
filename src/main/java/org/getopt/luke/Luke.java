@@ -89,7 +89,7 @@ public class Luke extends Thinlet implements ClipboardOwner {
 
   private static final long serialVersionUID = -470469999079073156L;
   
-  public static Version LV = Version.LUCENE_46;
+  public static Version LV = Version.LUCENE_47;
   
   private Directory dir = null;
   String pName = null;
@@ -998,9 +998,7 @@ public class Luke extends Thinlet implements ClipboardOwner {
       return null;
     }
     if (res != null) return res;
-    // fall-back to FSDirectory.
-    if (res == null) return FSDirectory.open(f);
-    return null;
+    return FSDirectory.open(f);
   }
   
   /**
@@ -4941,7 +4939,7 @@ public class Luke extends Thinlet implements ClipboardOwner {
   public void actionAbout() {
     Object about = addComponent(this, "/xml/about.xml", null, null);
     Object lver = find(about, "lver");
-    setString(lver, "text", "Lucene version: " + Version.LUCENE_46.name());
+    setString(lver, "text", "Lucene version: " + Luke.LV.name());
   }
 
   /**
@@ -5186,7 +5184,7 @@ public class Luke extends Thinlet implements ClipboardOwner {
     Luke luke = new Luke();
     DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
     Calendar cal = Calendar.getInstance();
-    FrameLauncher f = new FrameLauncher("Luke - Lucene Index Toolbox, v 4.6.1 (" + dateFormat.format(cal.getTime()) + ")", luke, 850, 650);
+    FrameLauncher f = new FrameLauncher("Luke - Lucene Index Toolbox (" + LV.name() + ")", luke, 850, 650);
     f.setIconImage(Toolkit.getDefaultToolkit().createImage(Luke.class.getResource("/img/luke.gif")));
     if (args.length > 0) {
       boolean force = false, ro = false, ramdir = false;
