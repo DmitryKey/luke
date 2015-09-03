@@ -172,9 +172,9 @@ public class FsDirectory extends Directory {
     return new DfsIndexInput(new Path(directory, name), bufSize, reporter);
   }
 
-  public Lock makeLock(final String name) {
+  public Lock obtainLock(final String name) throws IOException {
       if (lock == null) {
-          lock = lockFactory.makeLock(this, name);
+          lock = lockFactory.obtainLock(this, name);
       }
       return lock;
   }

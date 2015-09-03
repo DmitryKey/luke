@@ -193,10 +193,10 @@ public class IndexGate {
           if (indexFormat == CodecUtil.CODEC_MAGIC) {
             res.genericName = "Lucene 5.x";
             res.capabilities = "flexible, codec-specific";
-            int actualVersion = SegmentInfos.VERSION_51;
+            int actualVersion = SegmentInfos.VERSION_53;
             try {
               actualVersion = CodecUtil.checkHeaderNoMagic(in, "segments", SegmentInfos.VERSION_40, Integer.MAX_VALUE);
-              if (actualVersion > SegmentInfos.VERSION_51) {
+              if (actualVersion > SegmentInfos.VERSION_53) {
                 res.capabilities += " (WARNING: newer version of Lucene than this tool)";
                 System.out.println("WARNING: newer version of Lucene than this tool supports");
               }
@@ -228,6 +228,10 @@ public class IndexGate {
               case SegmentInfos.VERSION_51:
                 res.genericName = "Lucene 5.1 or later";
                 res.version = "5.1 or later";
+                break;
+              case SegmentInfos.VERSION_53:
+                res.genericName = "Lucene 5.3 or later";
+                res.version = "5.3 or later";
                 break;
             }
           } else {
