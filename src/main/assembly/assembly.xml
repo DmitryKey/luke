@@ -8,6 +8,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
+            <outputDirectory>luke-${lucene.version}</outputDirectory>
             <includes>
                 <include>luke.sh</include>
                 <include>luke.bat</include>
@@ -15,7 +16,7 @@
         </fileSet>
         <fileSet>
             <directory>target</directory>
-            <outputDirectory>target</outputDirectory>
+            <outputDirectory>luke-${lucene.version}/target</outputDirectory>
             <includes>
                 <include>luke-with-deps.jar</include>
             </includes>
