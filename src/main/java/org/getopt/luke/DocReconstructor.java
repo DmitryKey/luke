@@ -2,6 +2,7 @@ package org.getopt.luke;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
+import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 
@@ -155,38 +156,45 @@ public class DocReconstructor extends Observable {
 
         DocsAndPositionsEnum newDpe = te.docsAndPositions(live, dpe, 0);
 
-        if (newDpe == null) { // no position info for this field
-            // re-construct without positions
-            GrowableStringArray gsa = (GrowableStringArray)
-                    res.getReconstructedFields().get(fld);
+        if (newDpe != null) {
+            // we have positions for the field, process them accordingly
+            dpe = newDpe;
+
+            int num = dpe.advance(docNum);
+            if (num != docNum) { // either greater than or NO_MORE_DOCS
+                continue; // no data for this term in this doc
+            }
+
+            // we have computed the value earlier, using the bytesRef data structure
+            docTerm = te.term().utf8ToString();
+
+            GrowableStringArray gsa = res.getReconstructedFields().get(fld);
             if (gsa == null) {
                 gsa = new GrowableStringArray();
                 res.getReconstructedFields().put(fld, gsa);
             }
-            gsa.append(0, "|", docTerm);
-            // we are done. Move to the next field
-            break;
-        }
-
-        // we should have positions as well for the field, process them accordingly
-        dpe = newDpe;
-
-        int num = dpe.advance(docNum);
-        if (num != docNum) { // either greater than or NO_MORE_DOCS
-          continue; // no data for this term in this doc
-        }
-
-        // we have computed the value earlier, using the bytesRef data structure
-        docTerm = te.term().utf8ToString();
-
-        GrowableStringArray gsa = res.getReconstructedFields().get(fld);
-        if (gsa == null) {
-          gsa = new GrowableStringArray();
-          res.getReconstructedFields().put(fld, gsa);
-        }
-        for (int k = 0; k < dpe.freq(); k++) {
-          int pos = dpe.nextPosition();
-          gsa.append(pos, "|", docTerm);
+            for (int k = 0; k < dpe.freq(); k++) {
+                int pos = dpe.nextPosition();
+                gsa.append(pos, "|", docTerm);
+            }
+        } else {
+            // Reconstruct without positions (cross-reference via DocsEnum).
+            // NB if there are multiple terms they will all be added to the array at position 0
+            // (concatenated together, pipe-delimited)
+            DocsEnum docsEnum = te.docs(null, null);
+            if (docsEnum != null) {
+                int termDoc;
+                while ((termDoc = docsEnum.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
+                    if (termDoc == docNum) {
+                        GrowableStringArray gsa = res.getReconstructedFields().get(fld);
+                        if (gsa == null) {
+                            gsa = new GrowableStringArray();
+                            res.getReconstructedFields().put(fld, gsa);
+                        }
+                        gsa.append(0, "|", docTerm);
+                    }
+                }
+            }
         }
       }
     }
